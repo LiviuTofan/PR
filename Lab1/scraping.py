@@ -30,17 +30,39 @@ def user_choice(products):
 def category_scraping(content):
     div = content.find('div', class_='category-prods xlists')
     anchor_tags = div.find_all('a', class_='img-wrap')
-    for anchor_tag in anchor_tags:
-        product_href = anchor_tag.get('href')
-        img = anchor_tag.find('img')
+    #for anchor_tag in anchor_tags:
+    anchor_tag = anchor_tags[0]
+    product_href = anchor_tag.get('href')
+    img = anchor_tag.find('img').get('src')
+    product_scraping(product_href)
+
+def product_scraping(product_href):
+    content = parse_url(product_href)
+    div_name = content.find('div', class_='top-title')
+    product_name = div_name.find('h1').text
+
+    div_price = content.find('div', class_='xp-price')
+    price = div_price.text.replace('lei', '').strip()
+    currency = div_price.find('span').text
+    print(product_name)
+    print("Price:", price)
+    print("Currency:", currency)
+
+    div_description = content.find('div', class_='x-attribute')
+    p_tags = div_description.find_all('p')
+    for p_tag in p_tags:
+        specification = p_tag.span.text
+        print(specification)
+        value = p_tag.text.replace(specification, '').strip()
+        print(value)
 
 def parse_url(url):
     request = get_page(url)
     if request.status_code != 200:
         print("Request failed")
     else:
-        print("Response Status:", request.status_code)
-        print("------------------")
+        # print("Response Status:", request.status_code)
+        # print("------------------")
         content = get_content(request)
         return content
 
