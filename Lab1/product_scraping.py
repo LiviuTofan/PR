@@ -1,6 +1,7 @@
 from functools import reduce
 from datetime import datetime, timezone, timedelta
-from request_content import parse_url
+from request_content import parse_url, fetch_http_content
+from urllib.parse import urlparse
 
 def get_timestamp():
     local_timezone = timezone(timedelta(hours=3))
@@ -9,7 +10,16 @@ def get_timestamp():
 
 
 def product_scraping(product_href, product):
-    content = parse_url(product_href)
+    parsed_url = urlparse(product_href)
+
+    # Extract the host and path
+    host = parsed_url.netloc or "xstore.md"  # Fallback in case only a path is provided
+    path = parsed_url.path or "/"  # Default to root path if none is provided
+
+    # Fetch content based on user selection
+    content = fetch_http_content(host, path)
+
+    #content = parse_url(product_href)
     div_name = content.find('div', class_='top-title')
     product_name = div_name.find('h1').text.strip()
     product['name'] = product_name
