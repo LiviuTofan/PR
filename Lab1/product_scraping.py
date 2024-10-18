@@ -21,8 +21,13 @@ def product_scraping(product_href, product):
 
     #content = parse_url(product_href)
     div_name = content.find('div', class_='top-title')
-    product_name = div_name.find('h1').text.strip()
-    product['name'] = product_name
+    if div_name:
+        product_name = div_name.find('h1').text.strip()
+        product['name'] = product_name
+    else:
+        product['name'] = 'Unknown'
+        print("Warning: 'top-title' div not found for this product.")
+
 
     div_price = content.find('div', class_='xp-price')
     # First validation if remove white spaces and 'lei' from price
@@ -44,6 +49,8 @@ def product_scraping(product_href, product):
     for p_tag in p_tags:
         specification = p_tag.span.text
         value = p_tag.text.replace(specification, '').strip()
+        if '"' in value:
+            value = value.replace('"', 'inch')
         product[specification] = value
     
     return product
