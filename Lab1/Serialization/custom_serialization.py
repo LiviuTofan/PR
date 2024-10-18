@@ -1,29 +1,49 @@
-def liviu_serialization(product):
-    # Create a list to hold the serialized lines
-    serialized_lines = []
+from Serialization.Product import Product
 
-    # Main product attributes
-    serialized_lines.append(f"Href: {product.href}")
-    serialized_lines.append(f"Img: {product.img}")
-    serialized_lines.append(f"Name: {product.name}")
-    serialized_lines.append(f"Price: {product.converted_price:.2f}")
-    serialized_lines.append(f"Currency: {product.current_currency}")
+def liviu_serialization(data):
+    if isinstance(data, Product):
+        serialized_lines = []
+        serialized_lines.append(f"Href: {data.href}")
+        serialized_lines.append(f"Img: {data.img}")
+        serialized_lines.append(f"Name: {data.name}")
+        serialized_lines.append(f"Price: {data.converted_price:.2f}")
+        serialized_lines.append(f"Currency: {data.current_currency}")
+        
+        serialized_lines.append("OtherData:")
+        for key, value in data.other_data.items():
+            serialized_lines.append(f"  {key}: {value}")
+
+        return "\n".join(serialized_lines)
     
-    # Other data
-    serialized_lines.append("OtherData:")
-    for key, value in product.other_data.items():
-        serialized_lines.append(f"  {key}: {value}")
+    elif isinstance(data, list):
+        return "\n".join([liviu_serialization(item) for item in data])
     
-    return "\n".join(serialized_lines)
+    elif isinstance(data, dict):
+        return "\n".join([f"{key}: {value}" for key, value in data.items()])
+    
+    elif isinstance(data, str):
+        return f'String: {data}'
+    
+    elif isinstance(data, (int, float)):
+        return f'Number: {data}'
+    
+    elif isinstance(data, bool):
+        return f'Boolean: {data}'
+    
+    else:
+        return 'Unsupported data type'
 
 def liviu_deserialization(serialized_string: str):
     lines = serialized_string.strip().split('\n')
     
-    # Create an empty dictionary to store the product data
+    # Check if it's a list format
+    if all(":" in line for line in lines):
+        return {line.split(":")[0].strip(): line.split(":")[1].strip() for line in lines}
+
+    # Otherwise, handle specific cases like Product
     product_data = {}
     other_data = {}
 
-    # Parse each line
     for line in lines:
         line = line.strip()
         if line.startswith("Href:"):
@@ -37,14 +57,11 @@ def liviu_deserialization(serialized_string: str):
         elif line.startswith("Currency:"):
             product_data['current_currency'] = line.split("Currency:")[1].strip()
         elif line.startswith("OtherData:"):
-            # Start capturing other data
             continue
         else:
-            # Capture other data entries
             key, value = line.split(":", 1)
             other_data[key.strip()] = value.strip()
 
-    # Add the other data to the main product data dictionary
     product_data['other_data'] = other_data
 
     return product_data
