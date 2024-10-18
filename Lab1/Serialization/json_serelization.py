@@ -21,7 +21,6 @@ def custom_json_serialize(obj):
     
 
 def custom_json_deserialize(data):
-    # Parse the input string into the corresponding Python object
     if data == "null":
         return None
     elif data == "true":
@@ -40,7 +39,7 @@ def custom_json_deserialize(data):
         return data
 
 def deserialize_list(data):
-    # Remove brackets and split by commas
+    # remove brackets and split by commas
     data = data[1:-1].strip()
     if not data:
         return []
@@ -48,7 +47,7 @@ def deserialize_list(data):
     return [custom_json_deserialize(item.strip()) for item in items]
 
 def deserialize_dict(data):
-    # Remove curly braces and split by commas
+    # remove curly braces and split by commas
     data = data[1:-1].strip()
     if not data:
         return {}
@@ -56,13 +55,13 @@ def deserialize_dict(data):
     result = {}
     for item in items:
         key, value = item.split(':', 1)
-        key = custom_json_deserialize(key.strip())  # Deserialize the key
-        value = custom_json_deserialize(value.strip())  # Deserialize the value
+        key = custom_json_deserialize(key.strip())
+        value = custom_json_deserialize(value.strip())
         result[key] = value
     return result
 
 def split_by_comma(data):
-    # This function safely splits the string by commas, ignoring commas inside nested structures
+    # Tsplit the string by commas, ignoring commas inside nested structures
     result = []
     bracket_level = 0
     current_item = []

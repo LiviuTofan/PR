@@ -29,19 +29,18 @@ def decode_dict(content: str):
     while content:
         start = content.find('<')
         end = content.find('>', start)
-        if start == -1 or end == -1:  # No more tags found
+        if start == -1 or end == -1:
             break
 
-        key = content[start + 1:end]  # Extract the tag
+        key = content[start + 1:end]
         value_start = end + 1
         value_end = content.find(f'</{key}>', value_start)
 
-        if value_end == -1:  # If closing tag is not found
+        if value_end == -1: 
             break
 
         value_xml = content[value_start:value_end].strip()
 
-        # Decode the value and store it directly in the items dictionary
         if has_nested_tags(value_xml):
             # Recursively decode if there are nested tags
             items[key] = decode_dict(value_xml)
@@ -57,7 +56,7 @@ def has_nested_tags(content: str):
     return '<' in content and '>' in content and content.count('<') > 1
 
 def decode_value(value: str):
-    value = value.strip()  # Remove extra whitespace
+    value = value.strip()
     if value.lower() == 'true':
         return True
     elif value.lower() == 'false':
