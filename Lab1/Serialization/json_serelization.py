@@ -61,7 +61,7 @@ def deserialize_dict(data):
     return result
 
 def split_by_comma(data):
-    # Tsplit the string by commas, ignoring commas inside nested structures
+    # split the string by commas, ignoring commas inside nested structures
     result = []
     bracket_level = 0
     current_item = []

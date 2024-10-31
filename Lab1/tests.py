@@ -10,7 +10,7 @@ def custom_json_serialize(obj):
         return '[' + ', '.join(items) + ']'
     elif isinstance(obj, str):
         return f'"{obj}"'
-    elif isinstance(obj, (int, float)) and not isinstance(obj, bool):  # Prevent booleans from being treated as numbers
+    elif isinstance(obj, (int, float)) and not isinstance(obj, bool):
         return str(obj)
     elif isinstance(obj, bool):
         return 'true' if obj else 'false'

@@ -36,13 +36,10 @@ def liviu_serialization(data):
 def liviu_deserialization(serialized_string: str):
     lines = serialized_string.strip().split('\n')
     
-    # Check if it's a list format
-    if all(":" in line for line in lines):
-        return {line.split(":")[0].strip(): line.split(":")[1].strip() for line in lines}
-
-    # Otherwise, handle specific cases like Product
     product_data = {}
     other_data = {}
+
+    current_section = None
 
     for line in lines:
         line = line.strip()
@@ -57,10 +54,15 @@ def liviu_deserialization(serialized_string: str):
         elif line.startswith("Currency:"):
             product_data['current_currency'] = line.split("Currency:")[1].strip()
         elif line.startswith("OtherData:"):
-            continue
-        else:
+            current_section = "OtherData"
+            continue  # Skip the "OtherData:" line
+        elif current_section == "OtherData":
             key, value = line.split(":", 1)
             other_data[key.strip()] = value.strip()
+        else:
+            # Handle unexpected lines
+            key, value = line.split(":", 1)
+            product_data[key.strip()] = value.strip()
 
     product_data['other_data'] = other_data
 

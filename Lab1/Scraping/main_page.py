@@ -1,5 +1,3 @@
-# Parse the main page and return a dictionary with categories and their hrefs
-
 def parse_main_page(content):
     products = {}
     anchor_tags = content.find_all('a', class_='xcateg')

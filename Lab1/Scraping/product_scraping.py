@@ -1,7 +1,7 @@
 from functools import reduce
 from datetime import datetime, timezone, timedelta
-from request_content import parse_url, fetch_http_content
 from urllib.parse import urlparse
+from Scraping.request_content import parse_url, fetch_http_content
 
 def get_timestamp():
     local_timezone = timezone(timedelta(hours=3))

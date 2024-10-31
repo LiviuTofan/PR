@@ -1,4 +1,4 @@
-from product_scraping import product_scraping
+from Scraping.product_scraping import product_scraping
 
 # Scrape all products from a category page and call the function to scrape each product apart
 def category_scraping(content):

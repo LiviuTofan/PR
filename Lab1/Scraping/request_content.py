@@ -48,10 +48,12 @@ def fetch_http_content(host, path="/"):
                 break
             response += data
 
-        # Split headers and body
-        response_str = response.decode('utf-8')
+        try:
+            response_str = response.decode('utf-8')
+        except UnicodeDecodeError:
+            response_str = response.decode('latin-1')
+
         headers, body = response_str.split("\r\n\r\n", 1)
-        #print("Response headers: \n", headers)
 
         content = get_content(body)
         return content
