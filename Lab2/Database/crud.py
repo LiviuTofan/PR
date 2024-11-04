@@ -1,9 +1,11 @@
-def get_product(cursor, product_id):
+import json
+
+def get_product(cursor, product_id, columns):
     cursor.execute('SELECT * FROM product WHERE id = ?', (product_id,))
     product_row = cursor.fetchone()
     if product_row is None:
         return None
-    
+
     product_data = {
         "href": product_row[1],
         "img": product_row[2],
@@ -13,13 +15,12 @@ def get_product(cursor, product_id):
     }
 
     cursor.execute('SELECT * FROM other_data WHERE product_id = ?', (product_id,))
-    other_data_row = cursor.fetchone()
+    other_data_rows = cursor.fetchall()
+    product_data['other_data'] = {}
 
-    if other_data_row:
-        product_data['other_data'] = {}
-        for i in range(2, len(other_data_row)):
-            product_data['other_data'][other_data_row[i]] = other_data_row[i]
-    else:
-        product_data['other_data'] = {}
-    
-    return product_data
+    i=2
+    for column in columns:
+        product_data['other_data'][column] = other_data_rows[0][i]
+        i+=1
+
+    return json.dumps(product_data)
