@@ -23,7 +23,38 @@ def get_product(cursor, product_id, columns):
         product_data['other_data'][column] = other_data_rows[0][i]
         i+=1
 
-    return json.dumps(product_data)
+    return product_data
+
+def get_products_with_pagination(cursor, columns, offset, limit):
+    cursor.execute('SELECT COUNT(*) FROM product')
+    total_count = cursor.fetchone()[0]
+
+    cursor.execute('SELECT * FROM product LIMIT ? OFFSET ?', (limit, offset))
+    product_rows = cursor.fetchall()
+
+    product_list = []
+    for product_row in product_rows:
+        product_id = product_row[0]
+        product_data = {
+            "href": product_row[1],
+            "img": product_row[2],
+            "name": product_row[3],
+            "converted_price": product_row[4],
+            "current_currency": product_row[5]
+        }
+
+        cursor.execute('SELECT * FROM other_data WHERE product_id = ?', (product_id,))
+        other_data_rows = cursor.fetchall()
+
+        product_data['other_data'] = {}
+        i = 2
+        for column in columns:
+            product_data['other_data'][column] = other_data_rows[0][i] if other_data_rows else None
+            i += 1
+
+        product_list.append(product_data)
+
+    return product_list, total_count 
 
 def create_product(cursor, product):
     cursor.execute('''

@@ -2,8 +2,7 @@ import sqlite3
 import sys
 import json
 from flask import Flask, request, jsonify
-from crud_operations import get_product, create_product, update_product_data, delete_product_data
-
+from crud_operations import get_product, get_products_with_pagination, create_product, update_product_data, delete_product_data
 
 sys.path.append('/home/liviu/Univer/III year/PR/Lab2')
 
@@ -19,26 +18,35 @@ products, columns, values = read_products(data)
 app = Flask(__name__)
 
 @app.route('/products', methods=['GET'])
-def fetch_products():
+def fetch_product():
     product_list = []
     
     conn = sqlite3.connect(database)
     cursor = conn.cursor()
 
-    product_id = request.args.get('id', default=None, type=int)
-    offset = request.args.get('offset', default=None, type=int)
-    limit = request.args.get('limit', default=None, type=int)
-    
+    offset = request.args.get('offset', default=0, type=int)
+    limit = request.args.get('limit', default=5, type=int)
+    product_id = request.args.get('id', default=None, type=int) 
 
-    # for i in range(1, len(products) + 1):
-    #     product = get_product(cursor, i, columns)
-    #     print("PRODUCT", i, ":", product)
-    #     if product:
-    #         product_list.append(product)
+    if product_id is not None:
+        # Fetch a single product by ID example: /products?id=1
+        product = get_product(cursor, product_id, columns)
+        print("PRODUCT", product_id, ":", product)
+        if product:
+            product_list.append(product)
+        conn.close()
+        return jsonify(product_list)
 
-    conn.close()
-
-    return jsonify(product_list)
+    else:
+        # Fetch products with pagination example: /products?offset=5&limit=5
+        product_list, total_count = get_products_with_pagination(cursor, columns, offset, limit)
+        conn.close()
+        return jsonify({
+            "total_count": total_count,
+            "offset": offset,
+            "limit": limit,
+            "products": product_list
+        })
 
 @app.route('/insert/product', methods=['POST'])
 def insert_product():
