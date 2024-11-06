@@ -99,5 +99,19 @@ def delete_product():
 
     return jsonify({"message": "Product deleted successfully", "product_id": product_id}), 200
 
+@app.route('/upload', methods=['POST'])
+def upload():
+    if 'file' not in request.files:
+        return jsonify({"error": "No file part"}), 400
+    
+    file = request.files['file']
+
+    if file.filename == '':
+        return jsonify({"error": "No selected file"}), 400
+
+    content = file.read().decode('utf-8')
+    print("FILE CONTENT:", content)
+
+    return jsonify({"message": "File uploaded successfully"}), 200
 
 app.run(debug=True)
