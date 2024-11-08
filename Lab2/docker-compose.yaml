@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: ./
+      dockerfile: Dockerfile  # Adjust if the Dockerfile is located in a specific directory
+    ports:
+      - "5000:5000"
+    volumes:
+      - ../Database:/app/Database
+    environment:
+      - DATABASE_PATH=/app/Database/products.db
+    command: python app.py  # Run app.py directly as the container starts

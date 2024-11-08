@@ -9,11 +9,9 @@ function joinChat() {
         return;
     }
 
-    // Connect to the WebSocket server
     socket = new WebSocket("ws://localhost:6800");
 
     socket.onopen = () => {
-        // Send a join room command
         socket.send(JSON.stringify({ command: "join_room", username: username }));
         document.getElementById("username-input-container").style.display = "none";
         document.getElementById("message-input-container").style.display = "flex";
