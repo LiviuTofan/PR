@@ -42,7 +42,7 @@ def start_websocket_server():
     asyncio.set_event_loop(asyncio.new_event_loop())
     port = 6800
     # Start the WebSocket server and listen for incoming connections calling the handler function
-    start_server = websockets.serve(websocket_handler, "localhost", port)
+    start_server = websockets.serve(websocket_handler, "0.0.0.0", port)
     
     try:
         # Start the WebSocket server within the new event loop created above

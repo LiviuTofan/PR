@@ -3,12 +3,13 @@ version: '3.8'
 services:
   app:
     build:
-      context: ./
-      dockerfile: Dockerfile  # Adjust if the Dockerfile is located in a specific directory
+      context: ./  # Use the current directory (Lab2) as the build context
+      dockerfile: Dockerfile  # Specify the Dockerfile location
     ports:
-      - "5000:5000"
+      - "5000:5000"  # Map container port 5000 to host port 5000
+      - "6800:6800"  # Map WebSocket port (6800) to the host
     volumes:
-      - ../Database:/app/Database
+      - ./App/Database:/app/Database  # Mount the Database folder as a volume
     environment:
-      - DATABASE_PATH=/app/Database/products.db
-    command: python app.py  # Run app.py directly as the container starts
+      - DATABASE_PATH=/app/Database/products.db  # Environment variable for the database path
+    command: python app.py  # Run the app.py script when the container starts

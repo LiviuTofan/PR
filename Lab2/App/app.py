@@ -1,7 +1,11 @@
 import sqlite3
 import sys
 import threading
+import socket
+import random
+import time
 from flask import Flask, request, jsonify, send_from_directory
+from threading import Lock
 
 sys.path.append('/home/liviu/Univer/III year/PR/Lab2')
 
@@ -9,12 +13,11 @@ from Process.read import read_products
 from Chat.Services.handler import start_websocket_server
 from Crud.crud_operations import get_product, get_products_with_pagination, create_product, update_product_data, delete_product_data
 
-database = '/home/liviu/Univer/III year/PR/Lab2/Database/products.db'
-data = '/home/liviu/Univer/III year/PR/Lab2/Database/products.json'
-
+database = './Database/products.db'
+data = './Database/products.json'
 products, columns, values = read_products(data)
+lock = Lock()
 
-connected_users = set()
 app = Flask(__name__)
 
 @app.route('/products', methods=['GET'])
@@ -117,22 +120,68 @@ def upload():
 # ChatRoom
 @app.route("/chat")
 def serve_chat():
-    return send_from_directory('/home/liviu/Univer/III year/PR/Lab2/Chat/Front', 'chat.html')
+    return send_from_directory('./Chat/Front', 'chat.html')
 
 @app.route("/style.css")
 def serve_css():
-    return send_from_directory('/home/liviu/Univer/III year/PR/Lab2/Chat/Front', 'style.css')
+    return send_from_directory('./Chat/Front', 'style.css')
 
 @app.route("/script.js")
 def serve_js():
-    return send_from_directory('/home/liviu/Univer/III year/PR/Lab2/Chat/Front', 'script.js')
+    return send_from_directory('./Chat/Front', 'script.js')
 
 def start_http_server():
-    app.run(port=5000, debug=True, use_reloader=False) 
+    app.run(host="0.0.0.0", port=5000, debug=True, use_reloader=False)
 
-# Start the WebSocket server in a separate thread and the HTTP server in the main thread
-# This allows the two servers to work independently, each on its own port
+
+# For socket communication
+def handle_client(client_socket, client_address):
+    while True:
+        try:
+            message = client_socket.recv(1024).decode('utf-8')
+            if not message:
+                break
+            
+            command, *args = message.split()
+            
+            with lock:
+                if command.lower() == "write":
+                    with open('./Database/shared_file.txt', 'a') as f:
+                        data_to_write = f"Client {client_address}: {' '.join(args)}\n"
+                        time.sleep(random.randint(1, 7))  # Simulate delay
+                        f.write(data_to_write)
+                        print(f"Written to file by {client_address}: {data_to_write.strip()}")
+                
+                elif command.lower() == "read":
+                    time.sleep(random.randint(1, 7))  # Simulate delay
+                    with open('./Database/shared_file.txt', 'r') as f:
+                        content = f.read()
+                        client_socket.sendall(content.encode('utf-8'))
+                        print(f"Sent file content to {client_address}")
+        except (ConnectionResetError, BrokenPipeError):
+            break
+    client_socket.close()
+    print(f"Connection with {client_address} closed.")
+
+
+def start_tcp_server():
+    server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server.bind(('0.0.0.0', 6000))
+    server.listen(5)
+    print("TCP server listening on port 6000")
+
+    while True:
+        client_socket, client_address = server.accept()
+        print(f"Accepted connection from {client_address}")
+        client_thread = threading.Thread(target=handle_client, args=(client_socket, client_address), daemon=True)
+        client_thread.start()
+
+# Run WebSocket and HTTP servers in separate threads
 websocket_thread = threading.Thread(target=start_websocket_server, daemon=True)
 websocket_thread.start()
+
+# Start TCP server in a separate thread
+tcp_server_thread = threading.Thread(target=start_tcp_server, daemon=True)
+tcp_server_thread.start()
 
 start_http_server()

@@ -2,16 +2,16 @@ FROM python:3.9-slim
 
 WORKDIR /app
 
-# Copy the requirements file and install dependencies
+# Copy the requirements.txt from App and install dependencies
 COPY ./App/requirements.txt /app/requirements.txt
 RUN pip install -r requirements.txt
 
-# Copy the rest of the application code
+# Copy the entire App directory and the Database directory
 COPY ./App /app
-COPY ./Database /app/Database
+COPY ./App/Database /app/Database
 
 # Expose port 5000
 EXPOSE 5000
 
-# Run the app
+# Run the Flask app
 CMD ["python", "app.py"]
