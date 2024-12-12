@@ -43,7 +43,7 @@ def main(url):
     print(f"Time: {time_stamp}")
     print(f"Total price: {total_price}")
 
-    products = []
+    product_list = []
     for product_data in filtered_products:
         product = Product(
             href=product_data['href'],
@@ -53,14 +53,18 @@ def main(url):
             current_currency=product_data['current_currency'],
             **{k: v for k, v in product_data.items() if k not in ['href', 'img', 'name', 'converted_price', 'current_currency']}
         )
+        product_list.append(product)
 
-        json_serialized_product = custom_json_serialize(product)
-        print("Serialized product in JSON:")
-        print(json_serialized_product)
-        products.append(product.to_dict())
 
-    with open("/home/liviu/Univer/III year/PR/Lab2/Database/products.json", "w") as f:
-        json.dump(products, f)
+    # Comment this to work in Lab3 where I don't need serialization
+        # json_serialized_product = custom_json_serialize(product)
+        # print("Serialized product in JSON:")
+        # print(json_serialized_product)
+        # products.append(product.to_dict())
+
+    # with open("/home/liviu/Univer/III year/PR/Lab2/Database/products.json", "w") as f:
+    #     json.dump(products, f)
+    return product_list
 
 url = "https://xstore.md/"
-main(url)
+#main(url)

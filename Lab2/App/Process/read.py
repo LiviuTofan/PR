@@ -1,6 +1,7 @@
 import json
 
 def read_products(data):
+    print(f"Trying to open the file at: {data}")
     with open(data, 'r') as file:
         products = json.load(file)
 

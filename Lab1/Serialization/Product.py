@@ -16,6 +16,7 @@ class Product:
             "current_currency": self.current_currency,
             "other_data": self.other_data
         }
+        
 
     def __repr__(self):
         return (f"Product(name={self.name}, price={self.converted_price} {self.current_currency}, "
